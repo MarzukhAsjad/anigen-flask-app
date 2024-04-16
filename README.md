@@ -23,15 +23,14 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-5. Set the Flask environment variable:
-
-```bash
-export FLASK_APP=app.py
-```
-6. Run the Flask development server:
+5. Run the Flask development server:
 
 ```bash
 flask run
+```
+OR
+```bash
+python -m flask --app .\app.py run
 ```
 
 The server will start running on http://localhost:5000.
