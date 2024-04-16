@@ -1,0 +1,26 @@
+# Python-related
+*.pyc
+__pycache__/
+anigen-venv/
+*.env
+
+# Flask-related
+instance/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Environment-specific files
+.env
+.env.*
+
+# Log files
+*.log
+
+# Miscellaneous
+*.pyo
+*.swp
+.DS_Store
