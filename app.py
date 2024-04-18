@@ -4,12 +4,17 @@ from flask import Flask, Response
 from flask_sse import sse
 import requests
 from flask import request
+import config as Config
 
 app = Flask(__name__)
 app.register_blueprint(sse, url_prefix='/stream')
 
 @app.route('/')
 def home():
+    print(Config.BLEND_PATH)
+    print(Config.IMPORT_PATH)
+    print(Config.RENDER_PATH)
+    print(Config.MOTIONS)
     return 'This is the AniGEN Flask app to execute anigen-blender-utils. Use /exec to execute the command.'
 
 @app.route('/exec')
