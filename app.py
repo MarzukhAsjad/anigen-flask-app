@@ -46,6 +46,8 @@ def execute_command():
 
     return Response(stream_output(), mimetype='text/event-stream')
 
+# THIS IS A DEMO ENDPOINT TO TEST THE NOTIFICATION FUNCTIONALITY
+# TODO: Remove this endpoint
 @app.route('/notification', methods=['POST'])
 def receive_notification():
     # Get the JSON payload from the request
@@ -62,9 +64,37 @@ def send_notification():
     url = 'http://localhost:5000/notification'
 
     # Define the JSON payload
-    payload = {
-        'message': 'Hello, world!'
+    # JSON payload should contain the code and the status message
+    # Code 'R' is for 'Rendering', and status '0' is the 'Rendering started', '1' is for 'Rendering completed', and '-1' is for 'Rendering failed'
+    # Code 'P' is for 'Rendering Processing', and status 'd' is for 'Rendering Processing at d %'
+    # Code 'E' is for 'Exporting', and status '0' is for 'Exporting started', '1' is for 'Exporting completed' and '-1' is for 'Exporting failed'
+    
+    # Example payloads
+    # This payload is for 'Rendering started'
+    payload0 = {
+        'code': 'R',
+        'status': '0'
     }
+
+    # This payload is for 'Rendering process now at 70%'
+    payload1 = {
+        'code': 'P',
+        'status': '70'
+    }
+
+    # This payload is for 'Exporting completed'
+    payload2 = {
+        'code': 'E',
+        'status': '1'
+    }
+
+    # This payload is for 'Exporting failed'
+    payload3 = {
+        'code': 'E',
+        'status': '-1'
+    }
+
+    payload = payload0
 
     # Send the POST request with the JSON payload
     response = requests.post(url, json=payload)
