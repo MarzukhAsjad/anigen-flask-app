@@ -34,8 +34,10 @@ def execute_command():
         for line in iter(process.stdout.readline, ''):
             yield line.rstrip() + '\n'
             # TODO: Process the output to only get the necessary information
-            if count % 10 == 0:
-                threading.Thread(target=send_notification).start()
+            if (count % 10) == 0:
+                # TODO: Modify the progress calculation because right now it is just dummy calculation
+                progress = int((count * 100) / 200)
+                threading.Thread(target=send_notification, args=(progress,)).start()
             
             # Write the output to the log file
             log.write(line)
@@ -54,12 +56,16 @@ def receive_notification():
     data = request.json
 
     # Print the data 
-    print(data['message'])
+    print(data['code'], data['status'])
 
     # Send a response
     return 'Notification received'
 
-def send_notification():
+# Function to send notifications in a separate thread
+def send_notification_thread(progress):
+    send_notification((progress,))  # Wrap the progress value in a tuple
+
+def send_notification(progress):
     # Define the URL of the endpoint
     url = 'http://localhost:5000/notification'
 
@@ -79,7 +85,7 @@ def send_notification():
     # This payload is for 'Rendering process now at 70%'
     payload1 = {
         'code': 'P',
-        'status': '70'
+        'status': progress
     }
 
     # This payload is for 'Exporting completed'
@@ -94,7 +100,7 @@ def send_notification():
         'status': '-1'
     }
 
-    payload = payload0
+    payload = payload1
 
     # Send the POST request with the JSON payload
     response = requests.post(url, json=payload)
