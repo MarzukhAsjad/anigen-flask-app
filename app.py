@@ -11,6 +11,9 @@ def home():
 
 @app.route('/exec')
 def execute_command():
+    # Create a file to store the log
+    log = open('log.txt', 'w')
+
     # The command to be executed
     command = r'blender "C:\Users\User\Desktop\FYP\blender-utils\Xbot.blend" --background --python C:\Users\User\Desktop\FYP\blender-utils\main.py'
 
@@ -25,9 +28,11 @@ def execute_command():
             universal_newlines=True
         )
         # Read the output line by line 
-        # TODO: Process the output to send only the relevant information to another endpoint
         for line in iter(process.stdout.readline, ''):
             yield line.rstrip() + '\n'
+            # Write the output to the log file
+            # TODO: Process the output to only get the necessary information
+            log.write(line)
 
         process.stdout.close()
         process.wait()
