@@ -21,7 +21,8 @@ def execute_command():
     command = r'blender "C:\Users\User\Desktop\FYP\blender-utils\Xbot.blend" --background --python C:\Users\User\Desktop\FYP\blender-utils\main.py'
     # Function to stream the output of the command back to the client
     def stream_output():
-        count = 0
+        nFrames = 200
+        # count = 0
         process = subprocess.Popen(
             command,
             shell=True,
@@ -34,14 +35,25 @@ def execute_command():
         for line in iter(process.stdout.readline, ''):
             yield line.rstrip() + '\n'
             # TODO: Process the output to only get the necessary information
-            if (count % 10) == 0:
+            if line.startswith('Append frame '):
                 # TODO: Modify the progress calculation because right now it is just dummy calculation
-                progress = int((count * 100) / 200)
-                threading.Thread(target=send_notification, args=(progress,)).start()
+                iFrame = int(line.removeprefix('Append frame '))
+                percent_progress = int((iFrame * 100) / nFrames)
+                threading.Thread(target=send_notification, args=('P',percent_progress)).start()
+                if iFrame = nFrames:
+                    threading.Thread(target=send_notification, args=('R',1)).start()
+
+            elif line.startswith('Blender ') and 'quit' not in line:
+                threading.Thread(target=send_notification, args=('R',0)).start()
+                
+            elif line.startswith('FBX export starting...'):
+                threading.Thread(target=send_notification, args=('E',0)).start()            
+
+            elif line.startswith('Export complete!'):
+                threading.Thread(target=send_notification, args=('E',1)).start()    
             
             # Write the output to the log file
             log.write(line)
-            count += 1
 
         process.stdout.close()
         process.wait()
@@ -65,7 +77,7 @@ def receive_notification():
 def send_notification_thread(progress):
     send_notification((progress,))  # Wrap the progress value in a tuple
 
-def send_notification(progress):
+def send_notification(code,status):
     # Define the URL of the endpoint
     url = 'http://localhost:5000/notification'
 
@@ -77,6 +89,7 @@ def send_notification(progress):
     
     # Example payloads
     # This payload is for 'Rendering started'
+    """
     payload0 = {
         'code': 'R',
         'status': '0'
@@ -99,8 +112,15 @@ def send_notification(progress):
         'code': 'E',
         'status': '-1'
     }
+    """
 
-    payload = payload1
+    # This payload takes code and status as arguments directly
+    payload_cs = {
+        'code': code,
+        'status': status
+    }
+
+    payload = payload_cs
 
     # Send the POST request with the JSON payload
     response = requests.post(url, json=payload)
