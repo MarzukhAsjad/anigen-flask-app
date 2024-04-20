@@ -40,7 +40,7 @@ def execute_command():
                 iFrame = int(line.removeprefix('Append frame '))
                 percent_progress = int((iFrame * 100) / nFrames)
                 threading.Thread(target=send_notification, args=('P',percent_progress)).start()
-                if iFrame = nFrames:
+                if iFrame == nFrames:
                     threading.Thread(target=send_notification, args=('R',1)).start()
 
             elif line.startswith('Blender ') and 'quit' not in line:
@@ -60,23 +60,6 @@ def execute_command():
 
     return Response(stream_output(), mimetype='text/event-stream')
 
-# THIS IS A DEMO ENDPOINT TO TEST THE NOTIFICATION FUNCTIONALITY
-# TODO: Remove this endpoint
-@app.route('/notification', methods=['POST'])
-def receive_notification():
-    # Get the JSON payload from the request
-    data = request.json
-
-    # Print the data 
-    print(data['code'], data['status'])
-
-    # Send a response
-    return 'Notification received'
-
-# Function to send notifications in a separate thread
-def send_notification_thread(progress):
-    send_notification((progress,))  # Wrap the progress value in a tuple
-
 def send_notification(code,status):
     # Define the URL of the endpoint
     url = 'http://localhost:5000/notification'
@@ -86,33 +69,6 @@ def send_notification(code,status):
     # Code 'R' is for 'Rendering', and status '0' is the 'Rendering started', '1' is for 'Rendering completed', and '-1' is for 'Rendering failed'
     # Code 'P' is for 'Rendering Processing', and status 'd' is for 'Rendering Processing at d %'
     # Code 'E' is for 'Exporting', and status '0' is for 'Exporting started', '1' is for 'Exporting completed' and '-1' is for 'Exporting failed'
-    
-    # Example payloads
-    # This payload is for 'Rendering started'
-    """
-    payload0 = {
-        'code': 'R',
-        'status': '0'
-    }
-
-    # This payload is for 'Rendering process now at 70%'
-    payload1 = {
-        'code': 'P',
-        'status': progress
-    }
-
-    # This payload is for 'Exporting completed'
-    payload2 = {
-        'code': 'E',
-        'status': '1'
-    }
-
-    # This payload is for 'Exporting failed'
-    payload3 = {
-        'code': 'E',
-        'status': '-1'
-    }
-    """
 
     # This payload takes code and status as arguments directly
     payload_cs = {
