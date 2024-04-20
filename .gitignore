@@ -1,7 +1,7 @@
 # Python-related
 *.pyc
 __pycache__/
-anigen-venv/
+venv/
 *.env
 
 # Flask-related
