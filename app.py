@@ -65,21 +65,25 @@ def execute_command():
         # Read the output line by line 
         for line in iter(process.stdout.readline, ''):
             yield line.rstrip() + '\n'
-            # TODO: Process the output to only get the necessary information
-            if line.startswith('Append frame '):
-                # TODO: Modify the progress calculation because right now it is just dummy calculation
+
+            # Process the output to get the necessary information
+
+            # Render start
+            if line.startswith('Blender ') and 'quit' not in line:
+                threading.Thread(target=send_notification, args=('R',0)).start()
+            
+            elif line.startswith('Append frame '):
                 iFrame = int(line.removeprefix('Append frame '))
                 percent_progress = int((iFrame * 100) / nFrames)
+                # Render progress
                 threading.Thread(target=send_notification, args=('P',percent_progress)).start()
                 if iFrame == nFrames:
+                    # Render complete
                     threading.Thread(target=send_notification, args=('R',1)).start()
+                    # Export start
+                    threading.Thread(target=send_notification, args=('E',0)).start()
 
-            elif line.startswith('Blender ') and 'quit' not in line:
-                threading.Thread(target=send_notification, args=('R',0)).start()
-                
-            elif line.startswith('FBX export starting...'):
-                threading.Thread(target=send_notification, args=('E',0)).start()            
-
+            # Export complete
             elif line.startswith('Export complete!'):
                 threading.Thread(target=send_notification, args=('E',1)).start()    
             
@@ -138,4 +142,3 @@ TOTAL_FRAMES = {total_frames}'''.format(
 
     # with open(file_path, 'w') as f:
     #     f.write(config_data)
-
