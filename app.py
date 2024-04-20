@@ -120,11 +120,11 @@ def send_notification(code,status):
 
 def write_config_file(blend_path, import_path, render_path, motions, total_frames):
     config_data = '''# Configuration for main.py
-    BLEND_PATH = r'{blend_path}'
-    IMPORT_PATH = r'{import_path}'
-    RENDER_PATH = r'{render_path}'
-    MOTIONS = {motions}
-    TOTAL_FRAMES = {total_frames}'''.format(
+BLEND_PATH = r'{blend_path}'
+IMPORT_PATH = r'{import_path}'
+RENDER_PATH = r'{render_path}'
+MOTIONS = {motions}
+TOTAL_FRAMES = {total_frames}'''.format(
         blend_path=blend_path,
         import_path=import_path,
         render_path=render_path,
