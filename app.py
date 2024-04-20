@@ -22,21 +22,26 @@ def home():
 def motions_receive():
     data = request.json
     # TODO: Store motions in the config file
+    Config.MOTIONS = data['motions']
     return data
-    pass
 
 # This method will receive a json which will contain the information about the blender character
 @app.route('/character', methods=['POST'])
 def character_receive():
+    # Extract the character name from the json
     data = request.json
-    # TODO: Store character information in the config file
+    character = data['character']
+    # Store character information in the config file
+    blend_path = r'C:\Users\User\Desktop\FYP\blender-utils\{}.blend'.format(character)
+    print(blend_path) #TODO: Remove this line
+    Config.BLEND_PATH = blend_path
     return data
-    pass
 
 
 @app.route('/test')
 def test():
-    return Config.MOTIONS
+    config_data = write_config_file(Config.BLEND_PATH, Config.IMPORT_PATH, Config.RENDER_PATH, Config.MOTIONS, Config.TOTAL_FRAMES)
+    return config_data
 
 @app.route('/exec')
 def execute_command():
@@ -47,7 +52,7 @@ def execute_command():
     command = r'blender "C:\Users\User\Desktop\FYP\blender-utils\Xbot.blend" --background --python C:\Users\User\Desktop\FYP\blender-utils\main.py'
     # Function to stream the output of the command back to the client
     def stream_output():
-        nFrames = 200
+        nFrames = Config.TOTAL_FRAMES
         # count = 0
         process = subprocess.Popen(
             command,
@@ -112,4 +117,25 @@ def send_notification(code,status):
         pass
     else:
         print('Failed to send notification')
+
+def write_config_file(blend_path, import_path, render_path, motions, total_frames):
+    config_data = '''# Configuration for main.py
+    BLEND_PATH = r'{blend_path}'
+    IMPORT_PATH = r'{import_path}'
+    RENDER_PATH = r'{render_path}'
+    MOTIONS = {motions}
+    TOTAL_FRAMES = {total_frames}'''.format(
+        blend_path=blend_path,
+        import_path=import_path,
+        render_path=render_path,
+        motions=motions,
+        total_frames=total_frames,
+        )
+
+    # TODO: Remove these 2 lines
+    print(config_data)
+    return config_data
+
+    # with open(file_path, 'w') as f:
+    #     f.write(config_data)
 
