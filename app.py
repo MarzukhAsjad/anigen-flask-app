@@ -40,8 +40,8 @@ def character_receive():
 
 @app.route('/test')
 def test():
-    config_data = write_config_file(Config.BLEND_PATH, Config.IMPORT_PATH, Config.RENDER_PATH, Config.MOTIONS, Config.TOTAL_FRAMES)
-    return config_data
+    write_config_file(Config.BLEND_PATH, Config.IMPORT_PATH, Config.RENDER_PATH, Config.MOTIONS, Config.TOTAL_FRAMES)
+    return "config_data has been modified successfully"
 
 @app.route('/exec')
 def execute_command():
@@ -96,7 +96,7 @@ def execute_command():
     return Response(stream_output(), mimetype='text/event-stream')
 
 def send_notification(code,status):
-    # Define the URL of the endpoint
+    # TODO: Change the URL to the actual URL
     url = 'http://localhost:5000/notification'
 
     # Define the JSON payload
@@ -138,7 +138,8 @@ TOTAL_FRAMES = {total_frames}'''.format(
 
     # TODO: Remove these 2 lines
     print(config_data)
-    return config_data
 
-    # with open(file_path, 'w') as f:
-    #     f.write(config_data)
+    # Rewrite the configuration to the config.py file
+    file_path = 'config.py'    
+    with open(file_path, 'w') as f:
+        f.write(config_data)

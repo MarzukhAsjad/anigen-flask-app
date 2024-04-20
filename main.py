@@ -11,21 +11,25 @@ from anigenblenderutils.MakeInvisible import MakeInvisible
 from anigenblenderutils.Render import AnimationRenderer as Render
 from anigenblenderutils.ExportFBX import FBXExporter as Exporter
 
+import config as Config
 
 def main():
     # TODO: Make this dynamically take input from external sources
-    motions = [
-        "male_strut_walk",
-        "running_with_intention",
-        "dodging_to_the_right_place",
-        "hook_punch",
-        "covering_face_in_shame_after_defeat",
-    ]
+    # motions = [
+    #     "male_strut_walk",
+    #     "running_with_intention",
+    #     "dodging_to_the_right_place",
+    #     "hook_punch",
+    #     "covering_face_in_shame_after_defeat",
+    # ]
 
+    motions = Config.MOTIONS
     # Import the fbx files
     # TODO: Make the path dynamic or somehow configurable
     # TODO: Make the importing of the files dynamic as well (check inside code for the class)
-    find_and_import = FindAndImport("C:\\Users\\User\\Desktop\\FYP\\Motions\\ybot")
+    blender_file = Config.BLEND_PATH
+    print(motions)
+    find_and_import = FindAndImport(blender_file)
     find_and_import.run()
 
     # Rename the actions and blend the motions for each of the motions
@@ -45,16 +49,17 @@ def main():
     make_invisible.run()
     # Render the animation
     # TODO: Change the path to a dynamic one
+    render_path = Config.RENDER_PATH
     renderer = Render(
-        "C:\\Users\\User\\Desktop\\FYP\\Renders",
+        render_path,
         "FFMPEG",
         1,
-        200,
+        Config.TOTAL_FRAMES,
     )
     renderer.run()
     # Export the armature as FBX
     export_fbx = Exporter(
-        "idle", "C:\\Users\\User\\Desktop\\FYP\\Renders\\", "idle.fbx"
+        "idle", render_path, "idle.fbx"
     )
     export_fbx.run()
     # Saving the main file (not needed for now)
