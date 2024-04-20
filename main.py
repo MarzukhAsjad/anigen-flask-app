@@ -23,13 +23,11 @@ def main():
     #     "covering_face_in_shame_after_defeat",
     # ]
 
+    # Import the blender file and the fbx files
+    import_path = Config.IMPORT_PATH
     motions = Config.MOTIONS
-    # Import the fbx files
-    # TODO: Make the path dynamic or somehow configurable
-    # TODO: Make the importing of the files dynamic as well (check inside code for the class)
-    blender_file = Config.BLEND_PATH
-    print(motions)
-    find_and_import = FindAndImport(blender_file)
+    fbx_files = [f"{motion}.fbx" for motion in motions]
+    find_and_import = FindAndImport(import_path, fbx_files)
     find_and_import.run()
 
     # Rename the actions and blend the motions for each of the motions
@@ -59,7 +57,7 @@ def main():
     renderer.run()
     # Export the armature as FBX
     export_fbx = Exporter(
-        "idle", render_path, "idle.fbx"
+        "idle", render_path + '\\', "idle.fbx"
     )
     export_fbx.run()
     # Saving the main file (not needed for now)

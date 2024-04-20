@@ -33,7 +33,6 @@ def character_receive():
     character = data['character']
     # Store character information in the config file
     blend_path = r'C:\Users\User\Desktop\FYP\blender-utils\{}.blend'.format(character)
-    print(blend_path) #TODO: Remove this line
     Config.BLEND_PATH = blend_path
     return data
 
@@ -49,7 +48,7 @@ def execute_command():
     log = open('log.txt', 'w')
 
     # The command to be executed
-    command = r'blender "C:\Users\User\Desktop\FYP\blender-utils\Xbot.blend" --background --python C:\Users\User\Desktop\FYP\blender-utils\main.py'
+    command = r'blender {} --background --python main.py'.format(Config.BLEND_PATH)
     # Function to stream the output of the command back to the client
     def stream_output():
         nFrames = Config.TOTAL_FRAMES
