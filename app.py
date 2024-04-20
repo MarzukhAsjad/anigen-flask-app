@@ -4,13 +4,31 @@ from flask import Flask, Response
 from flask_sse import sse
 import requests
 from flask import request
+import config as Config
 
 app = Flask(__name__)
 app.register_blueprint(sse, url_prefix='/stream')
 
 @app.route('/')
 def home():
+    print(Config.BLEND_PATH)
+    print(Config.IMPORT_PATH)
+    print(Config.RENDER_PATH)
+    print(Config.MOTIONS)
+    Config.MOTIONS = ["fek"]
     return 'This is the AniGEN Flask app to execute anigen-blender-utils. Use /exec to execute the command.'
+
+# This method will receive a json which will contain names of motions
+@app.route('/motions', methods=['POST'])
+def motions_receive():
+    # Store motions in the config file
+    data = request.json
+    return data
+    pass
+
+@app.route('/test')
+def test():
+    return Config.MOTIONS
 
 @app.route('/exec')
 def execute_command():

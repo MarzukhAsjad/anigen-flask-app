@@ -20,6 +20,10 @@ instance/
 # Log files
 *.log
 
+# Ignore Blender files
+/*.blend
+/*.blend1
+
 # Miscellaneous
 *.pyo
 *.swp
