@@ -19,10 +19,13 @@ instance/
 
 # Log files
 *.log
+*.txt
 
 # Ignore Blender files
 /*.blend
 /*.blend1
+*.blend
+*.blend1
 
 # Miscellaneous
 *.pyo
