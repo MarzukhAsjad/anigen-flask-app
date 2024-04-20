@@ -15,16 +15,24 @@ def home():
     print(Config.IMPORT_PATH)
     print(Config.RENDER_PATH)
     print(Config.MOTIONS)
-    Config.MOTIONS = ["fek"]
     return 'This is the AniGEN Flask app to execute anigen-blender-utils. Use /exec to execute the command.'
 
 # This method will receive a json which will contain names of motions
 @app.route('/motions', methods=['POST'])
 def motions_receive():
-    # Store motions in the config file
     data = request.json
+    # TODO: Store motions in the config file
     return data
     pass
+
+# This method will receive a json which will contain the information about the blender character
+@app.route('/character', methods=['POST'])
+def character_receive():
+    data = request.json
+    # TODO: Store character information in the config file
+    return data
+    pass
+
 
 @app.route('/test')
 def test():
