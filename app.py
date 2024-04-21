@@ -12,18 +12,16 @@ app.register_blueprint(sse, url_prefix='/stream')
 
 @app.route('/')
 def home():
-    print(Config.BLEND_PATH)
-    print(Config.IMPORT_PATH)
-    print(Config.RENDER_PATH)
-    print(Config.MOTIONS)
+    # Reset the config file    
     return 'This is the AniGEN Flask app to execute anigen-blender-utils. Use /exec to execute the command.'
 
 # This method will receive a json which will contain names of motions
 @app.route('/motions', methods=['POST'])
 def motions_receive():
     data = request.json
-    # TODO: Store motions in the config file
+    # Store motions in the config file
     Config.MOTIONS = data['motions']
+    write_config_file()
     return '', 200
 
 # This method will receive a json which will contain the information about the blender character
@@ -32,15 +30,16 @@ def character_receive():
     # Extract the character name from the json
     data = request.json
     character = data['character']
-    # Store character information in the config file
+    # Store character information in the config file's BLEND_PATH
     blend_path = r'C:\Users\User\Desktop\FYP\blender-utils\{}.blend'.format(character)
     Config.BLEND_PATH = blend_path
+    write_config_file()
     return '', 200
 
 # The notification receiver
 @app.route('/notification', methods=['GET'])
-def notification_receive():
-    # Check if the process is finished
+def notification():
+    # Extract the code and status from the config file
     # Return the code and status as a json response
     payload_cs = {
         'code': Config.CODE,
@@ -50,15 +49,10 @@ def notification_receive():
 
 @app.route('/test')
 def test():
-    write_config_file(Config.BLEND_PATH, Config.IMPORT_PATH, Config.RENDER_PATH, Config.MOTIONS, Config.TOTAL_FRAMES)
+    write_config_file()
     return "config_data has been modified successfully"
 
 @app.route('/exec')
-def exec():
-    # Execute the execute_command in a thread
-    threading.Thread(target=execute_command).start
-    return "", 200
-
 def execute_command():
     # Create a file to store the log
     log = open('log.txt', 'w')
@@ -106,16 +100,18 @@ def execute_command():
             elif line.startswith('Export complete!'):
                 Config.CODE = 'E'
                 Config.STATUS = 1 
+                # Reset the config file
+                reset_config_file()
             
             # Write the output to the log file
             log.write(line)
 
         process.stdout.close()
         process.wait()
-
+    
     return Response(stream_output(), mimetype='text/event-stream')
 
-def write_config_file(blend_path, import_path, render_path, motions, total_frames, status, code):
+def write_config_file():
     config_data = '''# Configuration for main.py
 BLEND_PATH = r'{blend_path}'
 IMPORT_PATH = r'{import_path}'
@@ -123,19 +119,39 @@ RENDER_PATH = r'{render_path}'
 MOTIONS = {motions}
 TOTAL_FRAMES = {total_frames}
 # Status and code for the notification receiver
-STATUS = {status}
-CODE = {code}'''.format(
-        blend_path=blend_path,
-        import_path=import_path,
-        render_path=render_path,
-        motions=motions,
-        total_frames=total_frames,
-        status=status,
-        code=code
+CODE = '{code}'
+STATUS = {status}'''.format(
+        blend_path=Config.BLEND_PATH,
+        import_path=Config.IMPORT_PATH,
+        render_path=Config.RENDER_PATH,
+        motions=Config.MOTIONS,
+        total_frames=Config.TOTAL_FRAMES,
+        status=Config.STATUS,
+        code=Config.CODE
         )
 
     # TODO: Remove these 2 lines
     print(config_data)
+
+    # Rewrite the configuration to the config.py file
+    file_path = 'config.py'    
+    with open(file_path, 'w') as f:
+        f.write(config_data)
+
+def reset_config_file():
+    config_data = '''# Configuration for main.py
+BLEND_PATH = r'{blend_path}'
+IMPORT_PATH = r'{import_path}'
+RENDER_PATH = r'{render_path}'
+MOTIONS = []
+TOTAL_FRAMES = 200
+# Status and code for the notification receiver
+CODE = 'N'
+STATUS = -1'''.format(
+        blend_path=Config.BLEND_PATH,
+        import_path=Config.IMPORT_PATH,
+        render_path=Config.RENDER_PATH
+        )
 
     # Rewrite the configuration to the config.py file
     file_path = 'config.py'    
