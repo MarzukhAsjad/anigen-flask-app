@@ -5,8 +5,10 @@ from flask_sse import sse
 import requests
 from flask import request
 import config as Config
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.register_blueprint(sse, url_prefix='/stream')
 
 @app.route('/')
@@ -23,7 +25,7 @@ def motions_receive():
     data = request.json
     # TODO: Store motions in the config file
     Config.MOTIONS = data['motions']
-    return data
+    return '', 200
 
 # This method will receive a json which will contain the information about the blender character
 @app.route('/character', methods=['POST'])
@@ -34,8 +36,18 @@ def character_receive():
     # Store character information in the config file
     blend_path = r'C:\Users\User\Desktop\FYP\blender-utils\{}.blend'.format(character)
     Config.BLEND_PATH = blend_path
-    return data
+    return '', 200
 
+# The notification receiver
+@app.route('/notification', methods=['GET'])
+def notification_receive():
+    # Check if the process is finished
+    # Return the code and status as a json response
+    payload_cs = {
+        'code': Config.CODE,
+        'status': Config.STATUS
+    }
+    return payload_cs, 200
 
 @app.route('/test')
 def test():
@@ -69,22 +81,27 @@ def execute_command():
 
             # Render start
             if line.startswith('Blender ') and 'quit' not in line:
-                threading.Thread(target=send_notification, args=('R',0)).start()
+                Config.CODE = 'R'
+                Config.STATUS = 0
             
             elif line.startswith('Append frame '):
                 iFrame = int(line.removeprefix('Append frame '))
                 percent_progress = int((iFrame * 100) / nFrames)
                 # Render progress
-                threading.Thread(target=send_notification, args=('P',percent_progress)).start()
+                Config.CODE = 'P'
+                Config.STATUS = percent_progress
                 if iFrame == nFrames:
                     # Render complete
-                    threading.Thread(target=send_notification, args=('R',1)).start()
+                    Config.CODE = 'R'
+                    Config.STATUS = 1
                     # Export start
-                    threading.Thread(target=send_notification, args=('E',0)).start()
+                    Config.CODE = 'E'
+                    Config.STATUS = 0
 
             # Export complete
             elif line.startswith('Export complete!'):
-                threading.Thread(target=send_notification, args=('E',1)).start()    
+                Config.CODE = 'E'
+                Config.STATUS = 1 
             
             # Write the output to the log file
             log.write(line)
@@ -94,45 +111,23 @@ def execute_command():
 
     return Response(stream_output(), mimetype='text/event-stream')
 
-def send_notification(code,status):
-    # TODO: Change the URL to the actual URL
-    url = 'http://localhost:5000/notification'
-
-    # Define the JSON payload
-    # JSON payload should contain the code and the status message
-    # Code 'R' is for 'Rendering', and status '0' is the 'Rendering started', '1' is for 'Rendering completed', and '-1' is for 'Rendering failed'
-    # Code 'P' is for 'Rendering Processing', and status 'd' is for 'Rendering Processing at d %'
-    # Code 'E' is for 'Exporting', and status '0' is for 'Exporting started', '1' is for 'Exporting completed' and '-1' is for 'Exporting failed'
-
-    # This payload takes code and status as arguments directly
-    payload_cs = {
-        'code': code,
-        'status': status
-    }
-
-    payload = payload_cs
-
-    # Send the POST request with the JSON payload
-    response = requests.post(url, json=payload)
-    # Check the response status code
-    if response.status_code == 200:
-        # print('Notification sent successfully')
-        pass
-    else:
-        print('Failed to send notification')
-
-def write_config_file(blend_path, import_path, render_path, motions, total_frames):
+def write_config_file(blend_path, import_path, render_path, motions, total_frames, status, code):
     config_data = '''# Configuration for main.py
 BLEND_PATH = r'{blend_path}'
 IMPORT_PATH = r'{import_path}'
 RENDER_PATH = r'{render_path}'
 MOTIONS = {motions}
-TOTAL_FRAMES = {total_frames}'''.format(
+TOTAL_FRAMES = {total_frames}
+# Status and code for the notification receiver
+STATUS = {status}
+CODE = {code}'''.format(
         blend_path=blend_path,
         import_path=import_path,
         render_path=render_path,
         motions=motions,
         total_frames=total_frames,
+        status=status,
+        code=code
         )
 
     # TODO: Remove these 2 lines
