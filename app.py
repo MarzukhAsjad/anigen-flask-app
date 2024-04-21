@@ -2,7 +2,6 @@ import subprocess
 import threading
 from flask import Flask, Response
 from flask_sse import sse
-import requests
 from flask import request
 import config as Config
 from flask_cors import CORS
@@ -55,6 +54,11 @@ def test():
     return "config_data has been modified successfully"
 
 @app.route('/exec')
+def exec():
+    # Execute the execute_command in a thread
+    threading.Thread(target=execute_command).start
+    return "", 200
+
 def execute_command():
     # Create a file to store the log
     log = open('log.txt', 'w')
