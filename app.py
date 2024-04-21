@@ -1,5 +1,4 @@
 import subprocess
-import threading
 from flask import Flask, Response
 from flask_sse import sse
 from flask import request
