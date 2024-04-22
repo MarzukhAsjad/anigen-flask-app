@@ -15,11 +15,11 @@ cd anigen-flask-app
 3. (Recommended) Create and activate a virtual environment:
 
 ```bash
-python3 -m venv venv
+python -m venv venv
 ```
 Activate the venv with the following command
 ```bash
-venv\Scripts\activate
+./venv/Scripts/activate
 ```
 4. Install the dependencies:
 
