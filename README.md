@@ -19,8 +19,7 @@ python3 -m venv venv
 ```
 Activate the venv with the following command
 ```bash
-venv\Scripts\activate
-```
+./venv/Scripts/activate```
 4. Install the dependencies:
 
 ```bash
