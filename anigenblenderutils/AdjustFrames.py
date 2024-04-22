@@ -49,7 +49,7 @@ class AdjustFrames:
         nla_tracks = self.armature_obj.animation_data.nla_tracks
         current_strip = None
         # Iterate through the NLA tracks (assuming each track has one strip)
-        for track in nla_tracks:
+        for i, track in enumerate(nla_tracks):
             current_strip = track.strips[0]
             # Extract the action from the strip
             action = current_strip.action
@@ -57,7 +57,11 @@ class AdjustFrames:
             if current_strip.name != "idle":
                 track.strips.remove(current_strip)
                 # Initialise the frame start as last frame of previous strip - offset
-                frame_start = max(0, last_frame - self.offset)
+                offset_frame = self.offset
+                # If the current track is one of the last 5 excluding the last, set offset to 0
+                if i > len(nla_tracks) - 6 and i < len(nla_tracks) - 1:
+                    offset_frame = 0
+                frame_start = max(0, last_frame - offset_frame)
                 # Paste it to the desired time frame start within the NLA track
                 new_strip = track.strips.new(
                     name=action.name, action=action, start=int(frame_start)

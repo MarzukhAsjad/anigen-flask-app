@@ -20,6 +20,8 @@ def motions_receive():
     data = request.json
     # Store motions in the config file
     Config.MOTIONS = data['motions']
+    # Append the last motion to the Config.MOTIONS 4 times and smooth it to 'idle'
+    Config.MOTIONS = Config.MOTIONS + [Config.MOTIONS[-1]] * 4 + ['idle']
     write_config_file()
     return '', 200
 
