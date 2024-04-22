@@ -1,7 +1,7 @@
 import subprocess
 from flask import Flask, Response
 from flask_sse import sse
-from flask import request
+from flask import request, jsonify
 import config as Config
 from flask_cors import CORS
 
@@ -40,10 +40,8 @@ def character_receive():
 def notification():
     # Extract the code and status from the config file
     # Return the code and status as a json response
-    payload_cs = {
-        'code': Config.CODE,
-        'status': Config.STATUS
-    }
+    payload_cs = jsonify({'code': Config.CODE, 'status': Config.STATUS})
+    payload_cs.headers['Access-Control-Allow-Origin'] = '*'
     return payload_cs, 200
 
 @app.route('/test')
