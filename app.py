@@ -41,7 +41,7 @@ def notification():
     # Extract the code and status from the config file
     # Return the code and status as a json response
     payload_cs = jsonify({'code': Config.CODE, 'status': Config.STATUS})
-    payload_cs.headers.add('Access-Control-Allow-Origin', 'http://localhost')
+    payload_cs.headers['Access-Control-Allow-Origin'] = '*'
     return payload_cs, 200
 
 @app.route('/test')
