@@ -32,7 +32,7 @@ def character_receive():
     data = request.json
     character = data['character']
     # Store character information in the config file's BLEND_PATH
-    blend_path = r'C:\Users\User\Desktop\FYP\blender-utils\{}.blend'.format(character)
+    blend_path = r'flask-app\{}.blend'.format(character)
     Config.BLEND_PATH = blend_path
     write_config_file()
     return '', 200
@@ -61,7 +61,7 @@ def execute_command():
     # Function to stream the output of the command back to the client
     def stream_output():
         nFrames = Config.TOTAL_FRAMES
-        # count = 0
+        # Execute the command by creating a subprocess and reading the output
         process = subprocess.Popen(
             command,
             shell=True,
@@ -72,15 +72,13 @@ def execute_command():
         )
         # Read the output line by line 
         for line in iter(process.stdout.readline, ''):
-            yield line.rstrip() + '\n'
-
             # Process the output to get the necessary information
-
+            yield line.rstrip() + '\n'
             # Render start
             if line.startswith('Blender ') and 'quit' not in line:
                 Config.CODE = 'R'
                 Config.STATUS = 0
-            
+            # Frame progress
             elif line.startswith('Append frame '):
                 iFrame = int(line.removeprefix('Append frame '))
                 percent_progress = int((iFrame * 100) / nFrames)
@@ -104,7 +102,7 @@ def execute_command():
             
             # Write the output to the log file
             log.write(line)
-
+        # Close the log file and the process
         process.stdout.close()
         process.wait()
     

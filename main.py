@@ -10,30 +10,24 @@ from anigenblenderutils.AdjustFrames import AdjustFrames
 from anigenblenderutils.MakeInvisible import MakeInvisible
 from anigenblenderutils.Render import AnimationRenderer as Render
 from anigenblenderutils.ExportFBX import FBXExporter as Exporter
-
 import config as Config
 
 def main():
-    # TODO: Make this dynamically take input from external sources
-    # motions = [
-    #     "male_strut_walk",
-    #     "running_with_intention",
-    #     "dodging_to_the_right_place",
-    #     "hook_punch",
-    #     "covering_face_in_shame_after_defeat",
-    # ]
-
-    # Import the blender file and the fbx files
-    import_path = Config.IMPORT_PATH
+    # Import the motions from the config file
     motions = Config.MOTIONS
-    fbx_files = [f"{motion}.fbx" for motion in motions]
-    find_and_import = FindAndImport(import_path, fbx_files)
+
+    # Convert the motions to filenames with .fbx extension
+    fbx_files = [motion + ".fbx" for motion in motions] 
+
+    # Import the fbx files, i.e., the motions
+    find_and_import = FindAndImport(Config.IMPORT_PATH, fbx_files)
     find_and_import.run()
 
-    # Rename the actions and blend the motions for each of the motions
+    # Rename the actions for each of the motions (preprocessing)
     for motion in motions:
         rename_action = RenameAction(motion)
         rename_action.run()
+    # Blend the motions for each of the motions
     for motion in motions:
         blend_motion = BlendMotion("idle", motion)
         blend_motion.run()
@@ -45,11 +39,9 @@ def main():
     # Make the armature objects invisible in the outliner
     make_invisible = MakeInvisible()
     make_invisible.run()
-    # Render the animation
-    # TODO: Change the path to a dynamic one
-    render_path = Config.RENDER_PATH
+    # Render the animation to the output directory with video format
     renderer = Render(
-        render_path,
+        Config.RENDER_PATH,
         "FFMPEG",
         1,
         Config.TOTAL_FRAMES,
@@ -57,12 +49,12 @@ def main():
     renderer.run()
     # Export the armature as FBX
     export_fbx = Exporter(
-        "idle", render_path + '\\', "idle.fbx"
+        "idle", Config.RENDER_PATH + '\\', "idle.fbx"
     )
     export_fbx.run()
     # Saving the main file (not needed for now)
     # bpy.ops.wm.save_mainfile(
-    #     filepath="C:\\Users\\User\\Desktop\\FYP\\blender-utils\\Xbot2.blend"
+    #     filepath="C:\\Users\\User\\Desktop\\FYP\\blender-utils\\Xbot.blend"
     # )
 
 

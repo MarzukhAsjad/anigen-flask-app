@@ -1,6 +1,6 @@
 # Configuration for main.py
 BLEND_PATH = r'C:\Users\User\Desktop\FYP\blender-utils\Xbot.blend'
-IMPORT_PATH = r'C:\Users\User\Desktop\FYP\Motions\ybot'
+IMPORT_PATH = r'C:\Users\User\Desktop\FYP\Motions'
 RENDER_PATH = r'C:\Users\User\Desktop\FYP\renders'
 MOTIONS = []
 TOTAL_FRAMES = 200
