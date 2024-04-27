@@ -39,7 +39,7 @@ python -m flask --app .\app.py run
 The server will start running on http://localhost:5000.
 
 ## Usage
-Access the Flask app by visiting http://localhost:5000 in your web browser. Run the anigen-blender-utils tool by visiting http://localhost:5000/exec
+Access the Flask app by visiting http://localhost:5000 in your web browser. Run the anigen-blender-utils tool by visiting http://localhost:5000/exec. Additionally, you should change the config.py file by using either the webapp, or an api testing software like Postman. Manually changing the config.py will not work as it gets dynamically loaded in runtime and changes before script run will not affect it.
 
 ## Contributing
 Contributions are welcome! If you find any issues or have suggestions for improvement, please open an issue or submit a pull request.
