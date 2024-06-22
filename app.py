@@ -18,7 +18,7 @@ app.register_blueprint(sse, url_prefix='/stream')
 @app.route('/')
 def home():
     # Reset the config file    
-    return 'This is the AniGEN Flask app to execute anigen-blender-utils. Use /exec to execute the command.'
+    return 'AniGEN flask app is running!'
 
 # This method will receive a json which will contain names of motions
 @app.route('/config/motions', methods=['POST'])
