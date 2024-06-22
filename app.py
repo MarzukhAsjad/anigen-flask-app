@@ -128,16 +128,16 @@ def execute_command():
                     # Render complete
                     Config.CODE = 'R'
                     Config.STATUS = 1
-                    # Export start
-                    Config.CODE = 'E'
-                    Config.STATUS = 0
+                    # # Export start
+                    # Config.CODE = 'E'
+                    # Config.STATUS = 0
 
-            # Export complete
-            elif line.startswith('Export complete!'):
-                Config.CODE = 'E'
-                Config.STATUS = 1 
-                # Reset the config file
-                reset_config_file()
+            # # Export complete
+            # elif line.startswith('Export complete!'):
+            #     Config.CODE = 'E'
+            #     Config.STATUS = 1 
+            #     # Reset the config file
+            #     reset_config_file()
             
             # Write the output to the log file
             log.write(line)
