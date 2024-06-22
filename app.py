@@ -76,6 +76,12 @@ def render_receive():
     write_config_file()
     return '', 200
 
+# This method will reset the config file
+@app.route('/config/reset', methods=['POST'])
+def reset_config():
+    reset_config_file()
+    return '', 200
+
 # The notification receiver
 @app.route('/notification', methods=['GET'])
 def notification():
