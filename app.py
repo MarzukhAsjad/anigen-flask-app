@@ -121,7 +121,7 @@ IMPORT_PATH = r'{import_path}'
 RENDER_PATH = r'{render_path}'
 MOTIONS = {motions}
 TOTAL_FRAMES = {total_frames}
-# Status and code for the notification receiver
+# Status and code for external notification receiver
 CODE = '{code}'
 STATUS = {status}'''.format(
         blend_path=Config.BLEND_PATH,
