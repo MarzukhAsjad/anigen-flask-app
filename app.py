@@ -2,8 +2,14 @@ import subprocess
 from flask import Flask, Response
 from flask_sse import sse
 from flask import request, jsonify
-import config as Config
 from flask_cors import CORS
+import importlib.util
+
+# Import the config file
+spec = importlib.util.spec_from_file_location('config', 'anigen-blender-utils/config.py')
+config_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(config_module)
+Config = config_module
 
 app = Flask(__name__)
 CORS(app)
@@ -32,7 +38,7 @@ def character_receive():
     data = request.json
     character = data['character']
     # Store character information in the config file's BLEND_PATH
-    blend_path = r'C:\Users\User\Desktop\FYP\blender-utils\{}.blend'.format(character)
+    blend_path = r'C:\Users\User\Desktop\FYP\flask-app\{}.blend'.format(character)
     Config.BLEND_PATH = blend_path
     write_config_file()
     return '', 200
@@ -57,11 +63,11 @@ def execute_command():
     log = open('log.txt', 'w')
 
     # The command to be executed
-    command = r'blender {} --background --python main.py'.format(Config.BLEND_PATH)
+    command = r'blender {} --background --python anigen-blender-utils\main.py'.format(Config.BLEND_PATH)
     # Function to stream the output of the command back to the client
     def stream_output():
         nFrames = Config.TOTAL_FRAMES
-        # count = 0
+        # Execute the command by creating a subprocess and reading the output
         process = subprocess.Popen(
             command,
             shell=True,
@@ -72,15 +78,13 @@ def execute_command():
         )
         # Read the output line by line 
         for line in iter(process.stdout.readline, ''):
-            yield line.rstrip() + '\n'
-
             # Process the output to get the necessary information
-
+            yield line.rstrip() + '\n'
             # Render start
             if line.startswith('Blender ') and 'quit' not in line:
                 Config.CODE = 'R'
                 Config.STATUS = 0
-            
+            # Frame progress
             elif line.startswith('Append frame '):
                 iFrame = int(line.removeprefix('Append frame '))
                 percent_progress = int((iFrame * 100) / nFrames)
@@ -104,7 +108,7 @@ def execute_command():
             
             # Write the output to the log file
             log.write(line)
-
+        # Close the log file and the process
         process.stdout.close()
         process.wait()
     
@@ -133,7 +137,7 @@ STATUS = {status}'''.format(
     print(config_data)
 
     # Rewrite the configuration to the config.py file
-    file_path = 'config.py'    
+    file_path = 'anigen-blender-utils\config.py'    
     with open(file_path, 'w') as f:
         f.write(config_data)
 
@@ -153,6 +157,6 @@ STATUS = -1'''.format(
         )
 
     # Rewrite the configuration to the config.py file
-    file_path = 'config.py'    
+    file_path = 'anigen-blender-utils\config.py'    
     with open(file_path, 'w') as f:
         f.write(config_data)
