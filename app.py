@@ -21,7 +21,7 @@ def home():
     return 'This is the AniGEN Flask app to execute anigen-blender-utils. Use /exec to execute the command.'
 
 # This method will receive a json which will contain names of motions
-@app.route('/motions', methods=['POST'])
+@app.route('/config/motions', methods=['POST'])
 def motions_receive():
     data = request.json
     # Store motions in the config file
@@ -32,7 +32,7 @@ def motions_receive():
     return '', 200
 
 # This method will receive a json which will contain the information about the blender character
-@app.route('/character', methods=['POST'])
+@app.route('/config/character', methods=['POST'])
 def character_receive():
     # Extract the character name from the json
     data = request.json
@@ -40,6 +40,39 @@ def character_receive():
     # Store character information in the config file's BLEND_PATH
     blend_path = r'C:\Users\User\Desktop\FYP\flask-app\{}.blend'.format(character)
     Config.BLEND_PATH = blend_path
+    write_config_file()
+    return '', 200
+
+# This method will receive a json which will contain the information about the total frames
+@app.route('/config/frames', methods=['POST'])
+def frames_receive():
+    # Extract the total frames from the json
+    data = request.json
+    total_frames = data['total_frames']
+    # Store total frames in the config file
+    Config.TOTAL_FRAMES = total_frames
+    write_config_file()
+    return '', 200
+
+# This method will receive a json which will contain the information about the import path
+@app.route('/config/import', methods=['POST'])
+def import_receive():
+    # Extract the import path from the json
+    data = request.json
+    import_path = data['import_path']
+    # Store import path in the config file
+    Config.IMPORT_PATH = import_path
+    write_config_file()
+    return '', 200
+
+# This method will receive a json which will contain the information about the render path
+@app.route('/config/render', methods=['POST'])
+def render_receive():
+    # Extract the render path from the json
+    data = request.json
+    render_path = data['render_path']
+    # Store render path in the config file
+    Config.RENDER_PATH = render_path
     write_config_file()
     return '', 200
 
