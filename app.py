@@ -143,18 +143,14 @@ STATUS = {status}'''.format(
 
 def reset_config_file():
     config_data = '''# Configuration for main.py
-BLEND_PATH = r'{blend_path}'
-IMPORT_PATH = r'{import_path}'
-RENDER_PATH = r'{render_path}'
+BLEND_PATH = r'path/to/blend/file.blend'
+IMPORT_PATH = r'path/to/directory/containing/motion/files'
+RENDER_PATH = r'path/to/render/output/directory'
 MOTIONS = []
 TOTAL_FRAMES = 200
-# Status and code for the notification receiver
+# Status and code for external notification receiver
 CODE = 'N'
-STATUS = -1'''.format(
-        blend_path=Config.BLEND_PATH,
-        import_path=Config.IMPORT_PATH,
-        render_path=Config.RENDER_PATH
-        )
+STATUS = -1'''
 
     # Rewrite the configuration to the config.py file
     file_path = 'anigen-blender-utils\config.py'    
