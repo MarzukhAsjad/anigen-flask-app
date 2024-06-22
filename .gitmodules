@@ -1,0 +1,3 @@
+[submodule "anigen-blender-utils"]
+	path = anigen-blender-utils
+	url = https://github.com/MarzukhAsjad/anigen-blender-utils.git
