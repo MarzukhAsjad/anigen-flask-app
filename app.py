@@ -38,7 +38,7 @@ def character_receive():
     data = request.json
     character = data['character']
     # Store character information in the config file's BLEND_PATH
-    blend_path = r'C:\Users\User\Desktop\FYP\flask-app\{}.blend'.format(character)
+    blend_path = data['character']
     Config.BLEND_PATH = blend_path
     write_config_file()
     return '', 200
@@ -102,7 +102,7 @@ def execute_command():
     log = open('log.txt', 'w')
 
     # The command to be executed
-    command = r'blender {} --background --python anigen-blender-utils\main.py'.format(Config.BLEND_PATH)
+    command = r'blender {} --background --python anigen-blender-utils/main.py'.format(Config.BLEND_PATH)
     # Function to stream the output of the command back to the client
     def stream_output():
         nFrames = Config.TOTAL_FRAMES
@@ -176,7 +176,7 @@ STATUS = {status}'''.format(
     print(config_data)
 
     # Rewrite the configuration to the config.py file
-    file_path = 'anigen-blender-utils\config.py'    
+    file_path = 'anigen-blender-utils/config.py'    
     with open(file_path, 'w') as f:
         f.write(config_data)
 
@@ -192,6 +192,6 @@ CODE = 'N'
 STATUS = -1'''
 
     # Rewrite the configuration to the config.py file
-    file_path = 'anigen-blender-utils\config.py'    
+    file_path = 'anigen-blender-utils/config.py'    
     with open(file_path, 'w') as f:
         f.write(config_data)
