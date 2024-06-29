@@ -163,10 +163,10 @@ TOTAL_FRAMES = {total_frames}
 # Status and code for external notification receiver
 CODE = '{code}'
 STATUS = {status}'''.format(
-        blend_path=os.path.join(os.path.expanduser('~'), Config.BLEND_PATH),
+        blend_path=Config.BLEND_PATH,
         import_path=os.path.join(os.path.expanduser('~'), Config.IMPORT_PATH),
         render_path=os.path.join(os.path.expanduser('~'), Config.RENDER_PATH),
-        motions=os.path.join(os.path.expanduser('~'), Config.MOTIONS),
+        motions=Config.MOTIONS,
         total_frames=Config.TOTAL_FRAMES,
         status=Config.STATUS,
         code=Config.CODE
