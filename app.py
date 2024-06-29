@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, os
 from flask import Flask, Response
 from flask_sse import sse
 from flask import request, jsonify
@@ -38,7 +38,7 @@ def character_receive():
     data = request.json
     character = data['character']
     # Store character information in the config file's BLEND_PATH
-    blend_path = r'C:\Users\User\Desktop\FYP\flask-app\{}.blend'.format(character)
+    blend_path = data['character']
     Config.BLEND_PATH = blend_path
     write_config_file()
     return '', 200
@@ -102,7 +102,7 @@ def execute_command():
     log = open('log.txt', 'w')
 
     # The command to be executed
-    command = r'blender {} --background --python anigen-blender-utils\main.py'.format(Config.BLEND_PATH)
+    command = r'blender {} --background --python anigen-blender-utils/main.py'.format(Config.BLEND_PATH)
     # Function to stream the output of the command back to the client
     def stream_output():
         nFrames = Config.TOTAL_FRAMES
@@ -164,8 +164,8 @@ TOTAL_FRAMES = {total_frames}
 CODE = '{code}'
 STATUS = {status}'''.format(
         blend_path=Config.BLEND_PATH,
-        import_path=Config.IMPORT_PATH,
-        render_path=Config.RENDER_PATH,
+        import_path=os.path.join(os.path.expanduser('~'), Config.IMPORT_PATH),
+        render_path=os.path.join(os.path.expanduser('~'), Config.RENDER_PATH),
         motions=Config.MOTIONS,
         total_frames=Config.TOTAL_FRAMES,
         status=Config.STATUS,
@@ -176,7 +176,7 @@ STATUS = {status}'''.format(
     print(config_data)
 
     # Rewrite the configuration to the config.py file
-    file_path = 'anigen-blender-utils\config.py'    
+    file_path = 'anigen-blender-utils/config.py'    
     with open(file_path, 'w') as f:
         f.write(config_data)
 
@@ -192,6 +192,6 @@ CODE = 'N'
 STATUS = -1'''
 
     # Rewrite the configuration to the config.py file
-    file_path = 'anigen-blender-utils\config.py'    
+    file_path = 'anigen-blender-utils/config.py'    
     with open(file_path, 'w') as f:
         f.write(config_data)
