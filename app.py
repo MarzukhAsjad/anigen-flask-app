@@ -96,6 +96,12 @@ def test():
     write_config_file()
     return "config_data has been modified successfully"
 
+# This method will return the log file
+@app.route('/log')
+def log():
+    with open('log.txt', 'r') as f:
+        return f.read()
+
 @app.route('/exec')
 def execute_command():
     # Create a file to store the log
