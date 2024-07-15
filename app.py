@@ -165,8 +165,8 @@ def upload_video():
     # Step 1: Create a pre-signed URL to Upload a Video
     url = 'https://api.thetavideoapi.com/upload'
     headers = {
-        'x-tva-sa-id': 'srvacc_xxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x-tva-sa-secret': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        'x-tva-sa-id': os.environ.get('THETA_VIDEO_API_ID'),
+        'x-tva-sa-secret': os.environ.get('THETA_VIDEO_API_SECRET')
     }
     response = requests.post(url, headers=headers)
     response_data = response.json()
