@@ -162,6 +162,9 @@ def execute_command():
 # This method will use theta video api to upload the video
 @app.route('/upload_video', methods=['POST'])
 def upload_video():
+    # Extract the video file from the request
+    data = request.json
+    video_path = data['video_path']
     # Step 1: Create a pre-signed URL to Upload a Video
     url = 'https://api.thetavideoapi.com/upload'
     headers = {
@@ -174,21 +177,28 @@ def upload_video():
     # Extract relevant information from the response
     presigned_url = response_data['body']['uploads'][0]['presigned_url']
     
-    # Step 2: Upload the video using the presigned URL
-    video_file = request.files.get('video')
-    
-    if video_file:
-        video_data = video_file.read()
-        response = requests.put(presigned_url, headers={'Content-Type': 'application/octet-stream'}, data=video_data)
+    # Step 2: Extract video_path from the request body and read the video data
+    if request.is_json:
+        request_data = request.get_json()
+        video_path = request_data.get('video_path')
         
-        # Handle the response as needed
-        if response.status_code == 200:
-            return jsonify({"message": "Video uploaded successfully!"}), 200
+        if video_path and os.path.isfile(video_path):  # Check if the file exists
+            with open(video_path, 'rb') as video_file:
+                video_data = video_file.read()
+            
+            # Upload the video using the presigned URL
+            response = requests.put(presigned_url, headers={'Content-Type': 'application/octet-stream'}, data=video_data)
+            
+            # Handle the response as needed
+            if response.status_code == 200:
+                return jsonify({"message": "Video uploaded successfully!"}), 200
+            else:
+                return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
         else:
-            return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
+            return jsonify({"error": "Invalid video file path"}), 400
     else:
-        return jsonify({"error": "No video file provided"}), 400
-
+        return jsonify({"error": "Invalid request format. Please send JSON."}), 400
+    
 def write_config_file():
     config_data = '''# Configuration for main.py
 BLEND_PATH = r'{blend_path}'
