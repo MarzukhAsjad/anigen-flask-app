@@ -102,7 +102,7 @@ def execute_command():
     log = open('log.txt', 'w')
 
     # The command to be executed
-    command = r'blender {} --background --python anigen-blender-utils/main.py'.format(Config.BLEND_PATH)
+    command = r'xvfb-run -a blender {} --background --python anigen-blender-utils/main.py'.format(Config.BLEND_PATH)
     # Function to stream the output of the command back to the client
     def stream_output():
         nFrames = Config.TOTAL_FRAMES
