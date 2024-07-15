@@ -1,4 +1,4 @@
-import subprocess, os
+import subprocess, os, requests
 from flask import Flask, Response
 from flask_sse import sse
 from flask import request, jsonify
@@ -158,6 +158,36 @@ def execute_command():
         process.wait()
     
     return Response(stream_output(), mimetype='text/event-stream')
+
+# This method will use theta video api to upload the video
+@app.route('/upload_video', methods=['POST'])
+def upload_video():
+    # Step 1: Create a pre-signed URL to Upload a Video
+    url = 'https://api.thetavideoapi.com/upload'
+    headers = {
+        'x-tva-sa-id': 'srvacc_xxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x-tva-sa-secret': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    }
+    response = requests.post(url, headers=headers)
+    response_data = response.json()
+    
+    # Extract relevant information from the response
+    presigned_url = response_data['body']['uploads'][0]['presigned_url']
+    
+    # Step 2: Upload the video using the presigned URL
+    video_file = request.files.get('video')
+    
+    if video_file:
+        video_data = video_file.read()
+        response = requests.put(presigned_url, headers={'Content-Type': 'application/octet-stream'}, data=video_data)
+        
+        # Handle the response as needed
+        if response.status_code == 200:
+            return jsonify({"message": "Video uploaded successfully!"}), 200
+        else:
+            return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
+    else:
+        return jsonify({"error": "No video file provided"}), 400
 
 def write_config_file():
     config_data = '''# Configuration for main.py
