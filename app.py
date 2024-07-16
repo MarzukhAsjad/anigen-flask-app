@@ -205,7 +205,7 @@ def upload_video():
                 transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
                 
                 if transcode_response.status_code == 200:
-                    return transcode_response, 200
+                    return jsonify(transcode_response.json()), 200
                 else:
                     return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
             else:
