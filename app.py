@@ -173,9 +173,11 @@ def upload_video():
     }
     response = requests.post(url, headers=headers)
     response_data = response.json()
-    
+
     # Extract relevant information from the response
-    presigned_url = response_data['body']['uploads'][0]['presigned_url']
+    upload_info = response_data['body']['uploads'][0]
+    presigned_url = upload_info['presigned_url']
+    upload_id = upload_info['id']
     
     # Step 2: Extract video_path from the request body and read the video data
     if request.is_json:
@@ -189,9 +191,23 @@ def upload_video():
             # Upload the video using the presigned URL
             response = requests.put(presigned_url, headers={'Content-Type': 'application/octet-stream'}, data=video_data)
             
-            # Handle the response as needed
             if response.status_code == 200:
-                return jsonify({"message": "Video uploaded successfully!"}), 200
+                # Step 3: Transcode the video using the initial upload ID
+                transcode_url = 'https://api.thetavideoapi.com/video'
+                transcode_data = {
+                    "source_upload_id": upload_id,
+                    "playback_policy": "public",
+                    "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793",
+                    "metadata": {
+                        "key": "value"
+                    }
+                }
+                transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
+                
+                if transcode_response.status_code == 200:
+                    return transcode_response, 200
+                else:
+                    return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
             else:
                 return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
         else:
