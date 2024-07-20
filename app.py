@@ -213,7 +213,8 @@ def upload_video():
                         while True:
                             try:
                                 # Step 4: Check the status of the transcoding process
-                                status_url = 'https://api.thetavideoapi.com/video/{}'.format(upload_id)
+                                video_id = transcode_response.json()["body"]["videos"][0]["id"]
+                                status_url = 'https://api.thetavideoapi.com/video/{}'.format(video_id)
                                 status_response = requests.get(status_url, headers=headers)
                                 
                                 # Check if the response is valid JSON
