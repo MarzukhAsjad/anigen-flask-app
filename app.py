@@ -206,7 +206,7 @@ def upload_video():
                 transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
                 
                 if transcode_response.status_code == 200:
-                    
+                    # Poll the status of the transcoding process
                     while True:
                         # Step 4: Check the status of the transcoding process
                         status_url = 'https://api.thetavideoapi.com/video/{}'.format(upload_id)
@@ -219,7 +219,6 @@ def upload_video():
                             return jsonify({"video_url": video_url}), 200
                         else:
                             time.sleep(1)
-
                 else:
                     return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
             else:
