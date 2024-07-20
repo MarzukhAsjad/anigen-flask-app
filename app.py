@@ -4,6 +4,7 @@ from flask_sse import sse
 from flask import request, jsonify
 from flask_cors import CORS
 import importlib.util
+import time
 
 # Import the config file
 spec = importlib.util.spec_from_file_location('config', 'anigen-blender-utils/config.py')
