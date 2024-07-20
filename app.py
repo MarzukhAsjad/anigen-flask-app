@@ -202,12 +202,21 @@ def upload_video():
                         "key": "value"
                     }
                 }
-                transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
+                # Keep checking the response until the playback_uri is available
+                while True:
+                    transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
                 
-                if transcode_response.status_code == 200:
-                    return jsonify(transcode_response.json()), 200
-                else:
-                    return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
+                    if transcode_response.status_code == 200:
+                        response_json = transcode_response.json()
+                        playback_uri = response_json["body"]["videos"][0]["playback_uri"]
+                        
+                        if playback_uri is not None:
+                            return jsonify(response_json), 200
+                        else:
+                            # Additional processing or logging for null playback_uri
+                            time.sleep(1)  # Wait for 1 second before making the next request
+                    else:
+                        return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
             else:
                 return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
         else:
