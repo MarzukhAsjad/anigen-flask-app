@@ -203,21 +203,25 @@ def upload_video():
                         "key": "value"
                     }
                 }
-                # Keep checking the response until the playback_uri is available
-                while True:
-                    transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
+                transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
                 
-                    if transcode_response.status_code == 200:
-                        response_json = transcode_response.json()
-                        playback_uri = response_json["body"]["videos"][0]["playback_uri"]
-                        
-                        if playback_uri is not None:
-                            return jsonify(response_json), 200
+                if transcode_response.status_code == 200:
+                    
+                    while True:
+                        # Step 4: Check the status of the transcoding process
+                        status_url = 'https://api.thetavideoapi.com/video/{}'.format(upload_id)
+                        status_response = requests.get(status_url, headers=headers)
+                        status_data = status_response.json()
+                        status = status_data['body']['videos'][0]['state']
+                        if status == 'success':
+                            # Step 5: Get the video URL
+                            video_url = status_data['body']['videos'][0]['playback_uri']
+                            return jsonify({"video_url": video_url}), 200
                         else:
-                            # Additional processing or logging for null playback_uri
-                            time.sleep(1)  # Wait for 1 second before making the next request
-                    else:
-                        return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
+                            time.sleep(1)
+
+                else:
+                    return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
             else:
                 return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
         else:
