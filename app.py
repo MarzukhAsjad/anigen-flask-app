@@ -5,12 +5,15 @@ from flask import request, jsonify
 from flask_cors import CORS
 import importlib.util
 import time
+import logging
 
 # Import the config file
 spec = importlib.util.spec_from_file_location('config', 'anigen-blender-utils/config.py')
 config_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(config_module)
 Config = config_module
+# Configure logging
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s %(levelname)s: %(message)s')
 
 app = Flask(__name__)
 CORS(app)
@@ -202,25 +205,51 @@ def upload_video():
                     "metadata": {
                         "key": "value"
                     }
-                }
-                transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
-                
-                if transcode_response.status_code == 200:
-                    # Poll the status of the transcoding process
-                    while True:
-                        # Step 4: Check the status of the transcoding process
-                        status_url = 'https://api.thetavideoapi.com/video/{}'.format(upload_id)
-                        status_response = requests.get(status_url, headers=headers)
-                        status_data = status_response.json()
-                        status = status_data['body']['videos'][0]['state']
-                        if status == 'success':
-                            # Step 5: Get the video URL
-                            video_url = status_data['body']['videos'][0]['playback_uri']
-                            return jsonify({"video_url": video_url}), 200
-                        else:
-                            time.sleep(1)
-                else:
-                    return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
+                }                
+                try:
+                    transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
+                    
+                    if transcode_response.status_code == 200:
+                        while True:
+                            try:
+                                # Step 4: Check the status of the transcoding process
+                                status_url = 'https://api.thetavideoapi.com/video/{}'.format(upload_id)
+                                status_response = requests.get(status_url, headers=headers)
+                                
+                                # Check if the response is valid JSON
+                                try:
+                                    status_data = status_response.json()
+                                except ValueError as e:
+                                    logging.error(f"Failed to parse status response as JSON: {e}")
+                                    return jsonify({"error": "Failed to parse status response as JSON"}), 500
+                                
+                                # Check if 'body' and 'videos' keys exist
+                                if 'body' in status_data and 'videos' in status_data['body']:
+                                    try:
+                                        status = status_data["body"]["videos"][0]["state"]
+                                        if status == 'success':
+                                            # Step 5: Get the video URL
+                                            video_url = status_data["body"]["videos"][0]["playback_uri"]
+                                            return jsonify({"video_url": video_url}), 200
+                                        else:
+                                            time.sleep(1)
+                                    except IndexError as e:
+                                        logging.error(f"No videos found in status response: {e}")
+                                        return jsonify({"error": "No videos found in status response"}), 500
+                                else:
+                                    logging.error(f"Invalid response structure: {status_data}")
+                                    return jsonify({"error": "Invalid response structure", "response": status_data}), 500
+                            except KeyError as e:
+                                logging.error(f"KeyError: {e}")
+                                return jsonify({"error": "KeyError in processing response", "exception": str(e)}), 500
+                            except Exception as e:
+                                logging.error(f"Unexpected error: {e}")
+                                return jsonify({"error": "An unexpected error occurred", "exception": str(e)}), 500
+                    else:
+                        return jsonify({"error": "Failed to transcode video", "status_code": transcode_response.status_code}), transcode_response.status_code
+                except Exception as e:
+                    logging.error(f"Request Error: {e}")
+                    return jsonify({"error": "An error occurred while making the transcode request", "exception": str(e)}), 500
             else:
                 return jsonify({"error": "Failed to upload video", "status_code": response.status_code}), response.status_code
         else:
