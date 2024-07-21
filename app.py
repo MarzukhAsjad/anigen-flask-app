@@ -80,9 +80,10 @@ def render_receive():
     write_config_file()
     return '', 200
 
-# This method will reset the config file
+# This method will delete the rendered file and reset the config file
 @app.route('/config/reset', methods=['POST'])
 def reset_config():
+    delete_rendered_animation()
     reset_config_file()
     return '', 200
 
@@ -257,7 +258,16 @@ def upload_video():
             return jsonify({"error": "Invalid video file path"}), 400
     else:
         return jsonify({"error": "Invalid request format. Please send JSON."}), 400
-    
+
+# This method will delete the rendered animation
+def delete_rendered_animation():
+    filename = f"/home/mizookie/Renders/rendered_animation0001-{str(Config.TOTAL_FRAMES).zfill(4)}.mp4"
+    if os.path.exists(filename):
+        os.remove(filename)
+        print(f"{filename} has been deleted.")
+    else:
+        print(f"{filename} does not exist.")
+
 def write_config_file():
     config_data = '''# Configuration for main.py
 BLEND_PATH = r'{blend_path}'
