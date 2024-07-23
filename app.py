@@ -6,6 +6,7 @@ from flask_cors import CORS
 import importlib.util
 import time
 import logging
+import base64
 
 # Import the config file
 spec = importlib.util.spec_from_file_location('config', 'anigen-blender-utils/config.py')
@@ -192,6 +193,13 @@ def upload_video():
         if video_path and os.path.isfile(video_path):  # Check if the file exists
             with open(video_path, 'rb') as video_file:
                 video_data = video_file.read()
+                
+            # Encode the binary data in Base64
+            encoded_video_data = None
+            try:
+                encoded_video_data = base64.b64encode(video_data).decode('utf-8')
+            except Exception as e:
+                logging.error(f"Failed to encode video data: {e}")
             
             # Upload the video using the presigned URL
             response = requests.put(presigned_url, headers={'Content-Type': 'application/octet-stream'}, data=video_data)
@@ -232,10 +240,10 @@ def upload_video():
                                         if status == 'success':
                                             # Step 5: Get the video URL
                                             video_url = status_data["body"]["videos"][0]["playback_uri"]
-                                            return jsonify({"video_url": video_url}), 200
+                                            return jsonify({"video_url": video_url, "encoded_video_data": encoded_video_data}), 200
                                         else:
                                             time.sleep(1)
-                                    except IndexError as e:
+                                    except Exception as e:
                                         logging.error(f"No videos found in status response: {e}")
                                         return jsonify({"error": "No videos found in status response"}), 500
                                 else:
