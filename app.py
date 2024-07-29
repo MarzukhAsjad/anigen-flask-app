@@ -7,6 +7,8 @@ import importlib.util
 import time
 import logging
 import base64
+import json  # Import the json module
+from pydub import AudioSegment  # Import the AudioSegment class from the pydub module
 
 # Import the config file
 spec = importlib.util.spec_from_file_location('config', 'anigen-blender-utils/config.py')
@@ -266,6 +268,87 @@ def upload_video():
             return jsonify({"error": "Invalid video file path"}), 400
     else:
         return jsonify({"error": "Invalid request format. Please send JSON."}), 400
+
+# This method will receive a POST request of formdata and save the audio file for use
+@app.route('/generate', methods=['POST'])
+def generate():
+    # Check if the post request has the file part or sample part
+    if 'file' not in request.files and 'sample' not in request.form:
+        return jsonify({"error": "No file or sample part"}), 400
+
+    analysis_result = request.form['analysisResult']
+
+    if 'file' in request.files:
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+
+        if file:
+            filename = file.filename
+            file_path = os.path.join(os.getcwd(), filename)
+            file.save(file_path)
+            print(f"File saved to {file_path}")
+
+            # Parse the analysis_result
+            analysis_data = json.loads(analysis_result)
+            print(f"Analysis Result: {analysis_data}")
+
+            # Decode the base64 audio data
+            audio_data = base64.b64decode(analysis_data['audioBase64'])
+
+            # Write the analysis_data to an MP3 file
+            mp3_filename = f"analysis_{filename.split('.')[0]}.mp3"
+            mp3_file_path = os.path.join(os.getcwd(), mp3_filename)
+
+            # Create an AudioSegment from the audio_data
+            audio = AudioSegment(
+                data=audio_data,
+                sample_width=2,  # 2 bytes (16 bits) per sample
+                frame_rate=44100,  # 44.1 kHz frame rate
+                channels=1  # Mono audio
+            )
+
+            # Export the AudioSegment directly to an MP3 file
+            audio.export(mp3_file_path, format="mp3")
+
+            print(f"Analysis data written to {mp3_file_path}")
+
+            # Perform any required operations with the file and analysis data
+            # ...
+
+            return jsonify({"message": "File and analysis data received successfully"}), 200
+
+    elif 'sample' in request.form:
+        sample = request.form['sample']
+        print(f"Sample selected: {sample}")
+
+        # Parse the analysis_result
+        analysis_data = json.loads(analysis_result)
+        print(f"Analysis Result: {analysis_data}")
+
+        # Decode the base64 audio data
+        audio_data = base64.b64decode(analysis_data['audioBase64'])
+
+        # Write the analysis_data to an MP3 file
+        mp3_filename = f"{sample.split('.')[0]}.mp3"
+        mp3_file_path = os.path.join(os.getcwd(), mp3_filename)
+
+        # Create an AudioSegment from the audio_data
+        audio = AudioSegment(
+            data=audio_data,
+            sample_width=2,  # 2 bytes (16 bits) per sample
+            frame_rate=44100,  # 44.1 kHz frame rate
+            channels=1  # Mono audio
+        )
+
+        # Export the AudioSegment directly to an MP3 file
+        audio.export(mp3_file_path, format="mp3")
+
+        print(f"Analysis data written to {mp3_file_path}")
+
+        return jsonify({"message": "Sample and analysis data received successfully"}), 200
+
+    return jsonify({"error": "File upload or sample selection failed"}), 500
 
 # This method will delete the rendered animation
 def delete_rendered_animation():
