@@ -17,6 +17,7 @@ spec.loader.exec_module(config_module)
 Config = config_module
 # Configure logging
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s %(levelname)s: %(message)s')
+UPLOAD_FOLDER = os.getcwd()
 
 app = Flask(__name__)
 CORS(app)
@@ -285,7 +286,7 @@ def generate():
 
         if file:
             filename = file.filename
-            file_path = os.path.join(os.getcwd(), filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
             print(f"File saved to {file_path}")
 
@@ -294,11 +295,11 @@ def generate():
             print(f"Analysis Result: {analysis_data}")
 
             # Decode the base64 audio data
-            audio_data = base64.b64decode(analysis_data['audioBase64'])
+            audio_data = base64.b64decode(analysis_data.get('audioBase64', ''))
 
             # Write the analysis_data to an MP3 file
             mp3_filename = f"analysis_{filename.split('.')[0]}.mp3"
-            mp3_file_path = os.path.join(os.getcwd(), mp3_filename)
+            mp3_file_path = os.path.join(UPLOAD_FOLDER, mp3_filename)
 
             # Create an AudioSegment from the audio_data
             audio = AudioSegment(
@@ -318,8 +319,9 @@ def generate():
 
             return jsonify({"message": "File and analysis data received successfully"}), 200
 
-    elif 'sample' in request.form:
+    elif 'sample' in request.form and 'sampleData' in request.form:
         sample = request.form['sample']
+        sample_data = request.form['sampleData']
         print(f"Sample selected: {sample}")
 
         # Parse the analysis_result
@@ -327,11 +329,11 @@ def generate():
         print(f"Analysis Result: {analysis_data}")
 
         # Decode the base64 audio data
-        audio_data = base64.b64decode(analysis_data['audioBase64'])
+        audio_data = base64.b64decode(sample_data)
 
-        # Write the analysis_data to an MP3 file
-        mp3_filename = f"{sample.split('.')[0]}.mp3"
-        mp3_file_path = os.path.join(os.getcwd(), mp3_filename)
+        # Write the sample data to an MP3 file
+        mp3_filename = f"analysis_{sample.split('.')[0]}.mp3"
+        mp3_file_path = os.path.join(UPLOAD_FOLDER, mp3_filename)
 
         # Create an AudioSegment from the audio_data
         audio = AudioSegment(
@@ -344,7 +346,7 @@ def generate():
         # Export the AudioSegment directly to an MP3 file
         audio.export(mp3_file_path, format="mp3")
 
-        print(f"Analysis data written to {mp3_file_path}")
+        print(f"Sample data written to {mp3_file_path}")
 
         return jsonify({"message": "Sample and analysis data received successfully"}), 200
 
