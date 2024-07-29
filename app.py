@@ -8,7 +8,6 @@ import time
 import logging
 import base64
 import json  # Import the json module
-from pydub import AudioSegment  # Import the AudioSegment class from the pydub module
 
 # Import the config file
 spec = importlib.util.spec_from_file_location('config', 'anigen-blender-utils/config.py')
