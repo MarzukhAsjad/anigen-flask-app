@@ -274,10 +274,18 @@ def upload_video():
 @app.route('/generate', methods=['POST'])
 def generate():
     # Check if the post request has the file part or sample part
-    if 'file' not in request.files and 'sample' not in request.form:
+    if 'file' not in request.files and 'file_from_react' not in request.files:
         return jsonify({"error": "No file or sample part"}), 400
 
-    analysis_result = request.form['analysisResult']
+    analysis_result = request.form.get('analysisResult')
+    if not analysis_result:
+        return jsonify({"error": "No analysis result provided"}), 400
+
+    try:
+        analysis_data = json.loads(analysis_result)
+        print(f"Analysis Result: {analysis_data}")
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid analysis result format"}), 400
 
     if 'file' in request.files:
         file = request.files['file']
@@ -290,65 +298,26 @@ def generate():
             file.save(file_path)
             print(f"File saved to {file_path}")
 
-            # Parse the analysis_result
-            analysis_data = json.loads(analysis_result)
-            print(f"Analysis Result: {analysis_data}")
-
-            # Decode the base64 audio data
-            audio_data = base64.b64decode(analysis_data.get('audioBase64', ''))
-
-            # Write the analysis_data to an MP3 file
-            mp3_filename = f"analysis_{filename.split('.')[0]}.mp3"
-            mp3_file_path = os.path.join(UPLOAD_FOLDER, mp3_filename)
-
-            # Create an AudioSegment from the audio_data
-            audio = AudioSegment(
-                data=audio_data,
-                sample_width=2,  # 2 bytes (16 bits) per sample
-                frame_rate=44100,  # 44.1 kHz frame rate
-                channels=1  # Mono audio
-            )
-
-            # Export the AudioSegment directly to an MP3 file
-            audio.export(mp3_file_path, format="mp3")
-
-            print(f"Analysis data written to {mp3_file_path}")
-
             # Perform any required operations with the file and analysis data
             # ...
 
             return jsonify({"message": "File and analysis data received successfully"}), 200
 
-    elif 'sample' in request.form and 'sampleData' in request.form:
-        sample = request.form['sample']
-        sample_data = request.form['sampleData']
-        print(f"Sample selected: {sample}")
+    elif 'file_from_react' in request.files:
+        file = request.files['file_from_react']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
 
-        # Parse the analysis_result
-        analysis_data = json.loads(analysis_result)
-        print(f"Analysis Result: {analysis_data}")
+        if file:
+            filename = file.filename
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            print(f"Sample file saved to {file_path}")
 
-        # Decode the base64 audio data
-        audio_data = base64.b64decode(sample_data)
+            # Perform any required operations with the file and analysis data
+            # ...
 
-        # Write the sample data to an MP3 file
-        mp3_filename = f"analysis_{sample.split('.')[0]}.mp3"
-        mp3_file_path = os.path.join(UPLOAD_FOLDER, mp3_filename)
-
-        # Create an AudioSegment from the audio_data
-        audio = AudioSegment(
-            data=audio_data,
-            sample_width=2,  # 2 bytes (16 bits) per sample
-            frame_rate=44100,  # 44.1 kHz frame rate
-            channels=1  # Mono audio
-        )
-
-        # Export the AudioSegment directly to an MP3 file
-        audio.export(mp3_file_path, format="mp3")
-
-        print(f"Sample data written to {mp3_file_path}")
-
-        return jsonify({"message": "Sample and analysis data received successfully"}), 200
+            return jsonify({"message": "Sample and analysis data received successfully"}), 200
 
     return jsonify({"error": "File upload or sample selection failed"}), 500
 
