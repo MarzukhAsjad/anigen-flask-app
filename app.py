@@ -242,6 +242,8 @@ def upload_video():
                                         if status == 'success':
                                             # Step 5: Get the video URL
                                             video_url = status_data["body"]["videos"][0]["playback_uri"]
+                                            delete_rendered_animation()
+                                            reset_config_file()
                                             return jsonify({"video_url": video_url, "encoded_video_data": encoded_video_data}), 200
                                         else:
                                             time.sleep(1)
