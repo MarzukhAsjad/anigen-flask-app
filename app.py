@@ -295,10 +295,14 @@ def generate():
             filename = file.filename
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
-            print(f"File saved to {file_path}")
 
-            # Perform any required operations with the file and analysis data
-            # ...
+            # Set the audio path in the config file
+            # Set the audio_on flag to True
+            Config.AUDIO_PATH = file_path
+            Config.AUDIO_ON = True
+            print(f"File saved to {file_path}")
+            # Save the configuration to the config file
+            write_config_file()
 
             return jsonify({"message": "File and analysis data received successfully"}), 200
 
@@ -313,8 +317,13 @@ def generate():
             file.save(file_path)
             print(f"Sample file saved to {file_path}")
 
-            # Perform any required operations with the file and analysis data
-            # ...
+            # Set the audio path in the config file
+            # Set the audio_on flag to True
+            Config.AUDIO_PATH = file_path
+            Config.AUDIO_ON = True
+            print(f"File saved to {file_path}")
+            # Save the configuration to the config file
+            write_config_file()
 
             return jsonify({"message": "Sample and analysis data received successfully"}), 200
 
@@ -334,6 +343,8 @@ def write_config_file():
 BLEND_PATH = r'{blend_path}'
 IMPORT_PATH = r'{import_path}'
 RENDER_PATH = r'{render_path}'
+AUDIO_ON = {audio_on}
+AUDIO_PATH = r'{audio_path}'
 MOTIONS = {motions}
 TOTAL_FRAMES = {total_frames}
 # Status and code for external notification receiver
@@ -342,6 +353,8 @@ STATUS = {status}'''.format(
         blend_path=Config.BLEND_PATH,
         import_path=Config.IMPORT_PATH,
         render_path=Config.RENDER_PATH,
+        audio_on=Config.AUDIO_ON,
+        audio_path=Config.AUDIO_PATH,
         motions=Config.MOTIONS,
         total_frames=Config.TOTAL_FRAMES,
         status=Config.STATUS,
@@ -362,6 +375,8 @@ BLEND_PATH = r'path/to/blend/file.blend'
 IMPORT_PATH = r'path/to/directory/containing/motion/files'
 RENDER_PATH = r'path/to/render/output/directory'
 MOTIONS = []
+AUDIO_ON = False
+AUDIO_PATH = r'path/to/audio/file.mp3'
 TOTAL_FRAMES = 200
 # Status and code for external notification receiver
 CODE = 'N'
