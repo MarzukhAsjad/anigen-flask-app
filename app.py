@@ -305,7 +305,7 @@ def generate():
             write_config_file()
             message = "File successfully saved to " + file_path
             # Start the animation generation process
-            return execute_command()
+            return execute_command(), 200
 
     elif 'file_from_react' in request.files:
         file = request.files['file_from_react']
@@ -328,7 +328,8 @@ def generate():
             # Save the configuration to the config file
             write_config_file()
             message = "File successfully saved to " + file_path
-            return jsonify({"message": message}), 200
+            # Start the animation generation process
+            return execute_command(), 200
 
     return jsonify({"error": "File upload or sample selection failed"}), 500
 
