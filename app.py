@@ -301,7 +301,7 @@ def generate():
             # Set the audio path in the config file
             # Set the audio_on flag to True
             # Trim the audio file
-            file_path = trim_audio(file_path, analysis_data['start_time'])
+            file_path = trim_audio(file_path, analysis_data['significantTime'])
             Config.AUDIO_PATH = file_path
             Config.AUDIO_ON = True
             print(f"File successfully saved to {file_path}")
@@ -324,7 +324,7 @@ def generate():
             # Set the audio path in the config file
             # Set the audio_on flag to True
             # Trim the audio file
-            file_path = trim_audio(file_path, analysis_data['start_time'])
+            file_path = trim_audio(file_path, analysis_data['significantTime'])
             Config.AUDIO_PATH = file_path
             Config.AUDIO_ON = True
             print(f"File successfully saved to {file_path}")
