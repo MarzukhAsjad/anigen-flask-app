@@ -211,11 +211,7 @@ def upload_video():
                 transcode_url = 'https://api.thetavideoapi.com/video'
                 transcode_data = {
                     "source_upload_id": upload_id,
-                    "playback_policy": "public",
-                    "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793",
-                    "metadata": {
-                        "key": "value"
-                    }
+                    "playback_policy": "public"
                 }                
                 try:
                     transcode_response = requests.post(transcode_url, headers={**headers, 'Content-Type': 'application/json'}, json=transcode_data)
