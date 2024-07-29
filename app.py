@@ -300,13 +300,15 @@ def generate():
 
             # Set the audio path in the config file
             # Set the audio_on flag to True
+            # Trim the audio file
+            file_path = trim_audio(file_path, analysis_data['start_time'])
             Config.AUDIO_PATH = file_path
             Config.AUDIO_ON = True
-            print(f"File saved to {file_path}")
+            print(f"File successfully saved to {file_path}")
             # Save the configuration to the config file
             write_config_file()
-
-            return jsonify({"message": "File and analysis data received successfully"}), 200
+            message = "File successfully saved to " + file_path
+            return jsonify({"message": message}), 200
 
     elif 'file_from_react' in request.files:
         file = request.files['file_from_react']
@@ -317,19 +319,30 @@ def generate():
             filename = file.filename
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
-            print(f"Sample file saved to {file_path}")
+            print(f"File successfully saved to {file_path}")
 
             # Set the audio path in the config file
             # Set the audio_on flag to True
+            # Trim the audio file
+            file_path = trim_audio(file_path, analysis_data['start_time'])
             Config.AUDIO_PATH = file_path
             Config.AUDIO_ON = True
-            print(f"File saved to {file_path}")
+            print(f"File successfully saved to {file_path}")
             # Save the configuration to the config file
             write_config_file()
-
-            return jsonify({"message": "Sample and analysis data received successfully"}), 200
+            message = "File successfully saved to " + file_path
+            return jsonify({"message": message}), 200
 
     return jsonify({"error": "File upload or sample selection failed"}), 500
+
+# This method will trim the audio file
+def trim_audio(file_path, start_time):
+    end_time = start_time + 15
+    trimmed_file_path = file_path.replace('.mp3', '_trimmed.mp3')
+    command = f'ffmpeg -i {file_path} -ss {start_time} -to {end_time} -c copy {trimmed_file_path}'
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.wait()
+    return trimmed_file_path
 
 # This method will delete the rendered animation
 def delete_rendered_animation():
