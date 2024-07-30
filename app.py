@@ -336,6 +336,10 @@ def generate():
 def trim_audio(file_path, start_time):
     end_time = int(start_time) + 15
     trimmed_file_path = file_path.replace('.mp3', '_trimmed.mp3')
+    # Check if the trimmed file already exists
+    if os.path.exists(trimmed_file_path):
+        print(f"{trimmed_file_path} already exists.")
+        return trimmed_file_path
     command = f'ffmpeg -i {file_path} -ss {str(start_time)} -to {str(end_time)} -c copy {trimmed_file_path}'
     timeout = 10
 
