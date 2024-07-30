@@ -304,8 +304,8 @@ def generate():
             # Save the configuration to the config file
             write_config_file()
             message = "File successfully saved to " + file_path
-            # Start the animation generation process
-            return execute_command(), 200
+            return jsonify({"message": message}), 200
+
 
     elif 'file_from_react' in request.files:
         file = request.files['file_from_react']
@@ -328,16 +328,15 @@ def generate():
             # Save the configuration to the config file
             write_config_file()
             message = "File successfully saved to " + file_path
-            # Start the animation generation process
-            return execute_command(), 200
+            return jsonify({"message": message}), 200
 
     return jsonify({"error": "File upload or sample selection failed"}), 500
 
 # This method will trim the audio files
 def trim_audio(file_path, start_time):
-    end_time = start_time + 15
+    end_time = int(start_time) + 15
     trimmed_file_path = file_path.replace('.mp3', '_trimmed.mp3')
-    command = f'ffmpeg -i {file_path} -ss {start_time} -to {end_time} -c copy {trimmed_file_path}'
+    command = f'ffmpeg -i {file_path} -ss {str(start_time)} -to {str(end_time)} -c copy {trimmed_file_path}'
     timeout = 10
 
     try:
